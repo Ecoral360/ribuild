@@ -27,7 +27,7 @@
       (rvm "rvms/py/rvm.py")) ; specify a custom rvm for that target
 
     (target "js" ; adds javascript as a target of the package
-      (exe "rb") ;; overrides the default name given to output program
+      (exe "rib") ;; overrides the default name given to output program
       (libraries ; libraries used only with this target
         "./lib/a-js-lib.scm"))))
 
