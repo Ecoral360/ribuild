@@ -4,17 +4,17 @@
 
 (define (parse-cmd-line args)
   (define usage 
-"`rb` - Ribuild : The Ribbit Package Manager
+"`rib` - Ribuild : The Ribbit Package Manager
 
 SYNOPSIS
-`rb` [CMD] [OPTION]...
+`rib` [CMD] [OPTION]...
 
 COMMANDS
   `build`
   Builds the project
 
 EXAMPLE
-`rb build`
+`rib build`
 ")
 
   (cond 

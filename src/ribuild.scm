@@ -30,6 +30,11 @@
     (lambda (port)
       (for-each (lambda (lib) (write (list '##include-once lib) port)) libraries))))
 
+(define (process-target-output target-name output)
+  (if (string-prefix? "Error: " output)
+    (display (string-append output "\n[ERROR] skipping target `" target-name "`\n\n"))
+    (display (string-append (if (string=? output "") "" (string-append output "\n")) "[DONE] target `" target-name "`\n\n"))))
+
 (define (build-target target-config config)
   (let* ((target-name (car target-config))
          (target-exe (car (getv 'exe (cdr target-config) '(()))))
@@ -61,8 +66,9 @@
                                       (map symbol->string features))))
            (-r (if (null? rvm) "" (string-append "-r " rvm " "))))
       ;(pp (string-append "rsc " -t --prefix-code -f -o -x entry))
-      (display (string-append "[Running target `" target-name "`]\n"))
-      (shell-cmd (string-append "rsc " -t -f -r --prefix-code -o -x entry)))))
+      (display (string-append "[RUNNING] Target `" target-name "`\n"))
+      (let ((result (shell-cmd (string-append "rsc " -t -f -r --prefix-code -o -x entry))))
+        (process-target-output target-name result)))))
 
 (define (cmd-build args)
   (let* ((config (load-pkg-config))
