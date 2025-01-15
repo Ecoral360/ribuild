@@ -1,6 +1,14 @@
+(define RIBUILD-VERSION "0.1.0")
+
+(define (validate-ribuild-version config)
+  (let ((version (car (getv 'ribuild-version config))))
+    (if (string=? version RIBUILD-VERSION)
+      config
+      (error "Wrong version (expected" RIBUILD-VERSION "but found" version ")"))))
+
 (define (process-config config)
   (if (eq? (car config) 'define-package)
-    (cdr config)
+    (validate-ribuild-version (cdr config))
     (error "package.scm must only contain a call to define-package")))
 
 
