@@ -12,8 +12,7 @@ ribuild bin/rib: ribbit
 
 ribbit:
 	git clone https://github.com/Ecoral360/ribbit.git
-	cd ribbit
-	$(MAKE) rsc.exe
+	cd ribbit && $(MAKE) rsc.exe
 
 install: bin/rib
 	@echo "Add executables (rib and rsc) to your .basrc by running this command:"
