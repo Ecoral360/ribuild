@@ -4,8 +4,9 @@ A package manager for ribbit
 
 ## Installation
 
-The installation of `ribuild` will install the compatible ribbit compiler (`rsc`).
-To ensure a proper installation, _do not install the ribbit compiler yourself_
+The installation of `ribuild` will need to install a compatible ribbit compiler (which is currently a fork of the original compiler).
+
+To ensure a seemless installation and usage of `ribuild`, _you should not install the ribbit compiler yourself_
 and let `ribuild` do it (the installation step will make `rsc` accessible,
 so you will be able to use the stand alone compiler after installing `ribuild`).
 
