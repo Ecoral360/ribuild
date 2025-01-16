@@ -7,7 +7,7 @@
   (authors ("Mathis Laroche"))
 
   (entry "src/rb.scm")
-  (output-dir "out") ; specify the dir where to put the output of targets
+  (output-dir "bin") ; specify the dir where to put the output of targets
 
   ;; libraries have the form accepted by the ##include-once ribbit directive
   (libraries
@@ -21,7 +21,5 @@
     -js/web)        ; prefix `-` sets the feature value to #f
 
   (targets
-    (target "py") ; adds python as a target of the package
-
     (target "js" ; adds javascript as a target of the package
       (exe "rib")))) ;; overrides the default name given to output program
