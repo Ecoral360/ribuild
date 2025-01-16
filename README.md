@@ -15,6 +15,7 @@ A package manager for ribbit
 3. Run the command provided at the end of the installation phase to add `rib`
    to your PATH (this will also add `rsc` to your PATH)
 
+4. Run `rib --version` to ensure the installation was successful
 
 ## Features (WIP)
 ```sh

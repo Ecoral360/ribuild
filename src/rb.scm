@@ -25,8 +25,11 @@ EXAMPLE
      (cmd-build (cdr args)))
     ((string=? (car args) "init")
      (cmd-init (cdr args)))
+    ((member (car args) '("-v" "--version"))
+     (display RIBUILD-VERSION)
+     (newline)
+     (display "Copyright (c) 2025 Mathis Laroche\n"))
     (else (display "Invalid args"))))
-
 
 
 (parse-cmd-line (cdr (cmd-line)))

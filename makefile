@@ -18,7 +18,7 @@ ribbit:
 
 install: bin/rib
 	@echo "Add executables (rib and rsc) to your .basrc by running this command:"
-	@echo "echo 'export PATH=\"\$$PATH\":\"`pwd`/bin\"' >> ~/.bashrc"
+	@echo "echo 'export PATH=\"\$$PATH\":\"`pwd`/bin\"' >> ~/.bashrc && . ~/.bashrc"
 
 clean:
 	-rm -fr ribbit
