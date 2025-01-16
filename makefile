@@ -1,5 +1,5 @@
 .DELETE_ON_ERROR:
-.PHONY: all clean
+.PHONY: all install clean
 
 RSC := bin/rsc
 
@@ -21,7 +21,5 @@ install: bin/rib
 	@echo "echo 'export PATH=\"\$$PATH\":\"`pwd`/bin\"' >> ~/.bashrc"
 
 clean:
-	rm -fr ribbit
-	rm bin/rsc
-	rm bin/rib
-
+	-rm -fr ribbit
+	-rm bin/rib
