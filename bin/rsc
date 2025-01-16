@@ -1,3 +1,3 @@
 #!/bin/sh
 
-../ribbit/src/rsc.exe $@
+"$(dirname $0)"/../ribbit/src/rsc.exe $@

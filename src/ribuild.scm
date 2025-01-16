@@ -16,11 +16,13 @@
   (process-config (call-with-input-file "package.scm" read)))
 
 
-(define (getv key config (default #f))
+(define noparams (##rib 0 0 5))
+
+(define (getv key config (default noparams))
   (let ((pair (assq key config)))
     (if (pair? pair)
       (cdr pair)
-      (if (not default)
+      (if (eq? default noparams)
         (error "Missing required field" key "in package.scm")
         default))))
 
@@ -51,10 +53,10 @@
            (--prefix-code (begin
                             (includes-to-string libraries)
                             "--prefix-code /tmp/__ribbit_comp__tmp_lib.scm "))
-           (-o (string-append "-o " (car (getv 'output-dir config ".")) "/" target-output " "))
+           (-o (string-append "-o " (car (getv 'output-dir config '("."))) "/" target-output " "))
            (-x (if (null? target-exe)
                  ""
-                 (string-append "-x " (car (getv 'output-dir config ".")) "/" target-exe " ")))
+                 (string-append "-x " (car (getv 'output-dir config '("."))) "/" target-exe " ")))
            (-f (apply string-append (map 
                                       (lambda (feature) (string-append 
                                                           "-f" 
@@ -66,7 +68,7 @@
                                       (map symbol->string features))))
            (-r (if (null? rvm) "" (string-append "-r " rvm " "))))
       ;(pp (string-append "rsc " -t --prefix-code -f -o -x entry))
-      (display (string-append "[RUNNING] Target `" target-name "`\n"))
+      (display (string-append "[COMPILING] Target `" target-name "`\n"))
       (let ((result (shell-cmd (string-append "rsc " -t -f -r --prefix-code -o -x entry))))
         (process-target-output target-name result)))))
 
@@ -77,6 +79,19 @@
       (lambda (target-config) (build-target target-config config)) 
     (map cdr targets))))
 
+(define (cmd-run args)
+  (let* ((config (load-pkg-config))
+         (targets (getv 'targets config))
+         (target-exe (find (lambda (target) (getv 'exe (cdr target) #f)) (map cdr targets)))
+         (_ (if (not target-exe) (error "No exe target to run") '()))
+         (target-exe-path 
+           (string-append (car (getv 'output-dir config '("."))) "/" (car (getv 'exe (cdr target-exe))))))
+    (for-each 
+      (lambda (target-config) (build-target target-config config)) 
+      (map cdr targets))
+    (let* ((exe-args (if (null? args) '() (member "--" args)))
+           (exe-args-str (if (pair? exe-args) (string-concatenate (cdr exe-args) " ") "")))
+      (display (shell-cmd target-exe-path exe-args-str)))))
 
 (define-macro (build-dir) (cadr current-resource))
 

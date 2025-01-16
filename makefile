@@ -14,7 +14,7 @@ rsc ribbit/src/rsc.exe: ribbit ribbit/src/rsc.scm
 	cd ribbit/src && $(MAKE) rsc.exe
 
 ribbit:
-	git clone https://github.com/Ecoral360/ribbit.git
+	@git clone https://github.com/Ecoral360/ribbit.git
 
 install: bin/rib
 	@echo "Add executables (rib and rsc) to your .basrc by running this command:"

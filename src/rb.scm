@@ -23,6 +23,8 @@ EXAMPLE
      (display usage))
     ((string=? (car args) "build")
      (cmd-build (cdr args)))
+    ((string=? (car args) "run")
+     (cmd-run (cdr args)))
     ((string=? (car args) "init")
      (cmd-init (cdr args)))
     ((member (car args) '("-v" "--version"))
