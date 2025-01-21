@@ -29,8 +29,7 @@ EXAMPLE
      (cmd-init (cdr args)))
     ((member (car args) '("-v" "--version"))
      (display RIBUILD-VERSION)
-     (newline)
-     (display "Copyright (c) 2025 Mathis Laroche\n"))
+     (newline))
     (else (display "Invalid args"))))
 
 

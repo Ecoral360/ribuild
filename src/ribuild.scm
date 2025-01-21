@@ -32,12 +32,12 @@
     (lambda (port)
       (for-each (lambda (lib) (write (list '##include-once lib) port)) libraries))))
 
-(define (process-target-output target-name output)
+(define (process-target-output target-name output quiet?)
   (if (string-prefix? "Error: " output)
     (display (string-append output "\n[ERROR] skipping target `" target-name "`\n\n"))
-    (display (string-append (if (string=? output "") "" (string-append output "\n")) "[DONE] target `" target-name "`\n\n"))))
+    (or quiet? (display (string-append (if (string=? output "") "" (string-append output "\n")) "[DONE] target `" target-name "`\n\n")))))
 
-(define (build-target target-config config)
+(define (build-target target-config config cmd-args)
   (let* ((target-name (car target-config))
          (target-exe (car (getv 'exe (cdr target-config) '(()))))
          (target-output (car (getv 'output 
@@ -68,16 +68,39 @@
                                       (map symbol->string features))))
            (-r (if (null? rvm) "" (string-append "-r " rvm " "))))
       ;(pp (string-append "rsc " -t --prefix-code -f -o -x entry))
-      (display (string-append "[COMPILING] Target `" target-name "`\n"))
+      (or
+        (member "quiet" cmd-args)
+        (display (string-append "[COMPILING] Target `" target-name "`\n")))
       (let ((result (shell-cmd (string-append "rsc " -t -f -r --prefix-code -o -x entry))))
-        (process-target-output target-name result)))))
+        (process-target-output target-name result (member "quiet" cmd-args))))))
 
 (define (cmd-build args)
   (let* ((config (load-pkg-config))
-         (targets (getv 'targets config)))
+         (targets (getv 'targets config))
+         (cmd-args '()))
     (for-each 
-      (lambda (target-config) (build-target target-config config)) 
+      (lambda (target-config) (build-target target-config config cmd-args)) 
     (map cdr targets))))
+
+(define (cmd-run-process-args args)
+  (let loop ((cmd-args '())
+             (rest args))
+    (if (null? rest)
+      cmd-args
+      (let ((arg (car rest)))
+        (cond
+          ((member arg '("-q" "--quiet")) 
+           (loop (cons "quiet" cmd-args) (cdr rest)))
+          (else 
+            (display (string-append "Ignoring unknown option '" arg "'"))))))))
+
+(define (take-while predicate lst)
+  (let loop ((final '())
+             (rest lst))
+    (cond 
+      ((null? rest) final)
+      ((not (predicate (car rest))) final)
+      (else (loop (append final (list (car rest))) (cdr rest))))))
 
 (define (cmd-run args)
   (let* ((config (load-pkg-config))
@@ -85,9 +108,10 @@
          (target-exe (find (lambda (target) (getv 'exe (cdr target) #f)) (map cdr targets)))
          (_ (if (not target-exe) (error "No exe target to run") '()))
          (target-exe-path 
-           (string-append (car (getv 'output-dir config '("."))) "/" (car (getv 'exe (cdr target-exe))))))
+           (string-append (car (getv 'output-dir config '("."))) "/" (car (getv 'exe (cdr target-exe)))))
+         (cmd-args (cmd-run-process-args (take-while (lambda (arg) (not (string=? "--" arg))) args))))
     (for-each 
-      (lambda (target-config) (build-target target-config config)) 
+      (lambda (target-config) (build-target target-config config cmd-args)) 
       (map cdr targets))
     (let* ((exe-args (if (null? args) '() (member "--" args)))
            (exe-args-str (if (pair? exe-args) (string-concatenate (cdr exe-args) " ") "")))
@@ -109,4 +133,8 @@
       (call-with-output-file
         "package.scm"
         (lambda (output-port)
-          (display template output-port))))))
+          (display template output-port)))
+      (call-with-output-file
+        "main.scm"
+        (lambda (output-port)
+          (write '(display "Hello from Ribuild!\n") output-port))))))
