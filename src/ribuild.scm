@@ -1,36 +1,8 @@
-(define RIBUILD-VERSION "0.1.0")
-
-(define (validate-ribuild-version config)
-  (let ((version (car (getv 'ribuild-version config))))
-    (if (string=? version RIBUILD-VERSION)
-      config
-      (error "Wrong version (expected" RIBUILD-VERSION "but found" version ")"))))
-
-(define (process-config config)
-  (if (eq? (car config) 'define-package)
-    (validate-ribuild-version (cdr config))
-    (error "package.scm must only contain a call to define-package")))
-
-
-(define (load-pkg-config) 
-  (process-config (call-with-input-file "package.scm" read)))
-
-
-(define noparams (##rib 0 0 5))
-
-(define (getv key config (default noparams))
-  (let ((pair (assq key config)))
-    (if (pair? pair)
-      (cdr pair)
-      (if (eq? default noparams)
-        (error "Missing required field" key "in package.scm")
-        default))))
-
-(define (includes-to-string libraries)
+(define (includes-to-string includes)
   (call-with-output-file
     "/tmp/__ribbit_comp__tmp_lib.scm"
     (lambda (port)
-      (for-each (lambda (lib) (write (list '##include-once lib) port)) libraries))))
+      (for-each (lambda (lib) (write (list '##include-once lib) port)) includes))))
 
 (define (process-target-output target-name output quiet?)
   (if (string-prefix? "Error: " output)
@@ -46,12 +18,12 @@
                                      (list (string-append "out." target-name))
                                      (list target-exe)))))
          (entry (car (getv 'entry config)))
-         (libraries (getv 'libraries config) '((ribbit "empty")))
+         (includes (getv 'includes config) '((ribbit "empty")))
          (features (getv 'features config '()))
          (rvm (car (getv 'rvm (cdr target-config) '(())))))
     (let* ((-t (string-append "-t " target-name " "))
            (--prefix-code (begin
-                            (includes-to-string libraries)
+                            (includes-to-string includes)
                             "--prefix-code /tmp/__ribbit_comp__tmp_lib.scm "))
            (-o (string-append "-o " (car (getv 'output-dir config '("."))) "/" target-output " "))
            (-x (if (null? target-exe)
@@ -69,10 +41,10 @@
            (-r (if (null? rvm) "" (string-append "-r " rvm " "))))
       ;(pp (string-append "rsc " -t --prefix-code -f -o -x entry))
       (or
-        (member "quiet" cmd-args)
+        (assoc "quiet" cmd-args)
         (display (string-append "[COMPILING] Target `" target-name "`\n")))
       (let ((result (shell-cmd (string-append "rsc " -t -f -r --prefix-code -o -x entry))))
-        (process-target-output target-name result (member "quiet" cmd-args))))))
+        (process-target-output target-name result (assoc "quiet" cmd-args))))))
 
 (define (cmd-build args)
   (let* ((config (load-pkg-config))
@@ -90,7 +62,9 @@
       (let ((arg (car rest)))
         (cond
           ((member arg '("-q" "--quiet")) 
-           (loop (cons "quiet" cmd-args) (cdr rest)))
+           (loop (cons '("quiet" #t) cmd-args) (cdr rest)))
+          ((member arg '("-t" "--target"))
+           (loop (cons '("target" (cadr rest)) cmd-args) (cddr rest)))
           (else 
             (display (string-append "Ignoring unknown option '" arg "'"))))))))
 
@@ -105,11 +79,19 @@
 (define (cmd-run args)
   (let* ((config (load-pkg-config))
          (targets (getv 'targets config))
-         (target-exe (find (lambda (target) (getv 'exe (cdr target) #f)) (map cdr targets)))
-         (_ (if (not target-exe) (error "No exe target to run") '()))
+         (cmd-args (cmd-run-process-args (take-while (lambda (arg) (not (string=? "--" arg))) args)))
+         (target-name (let ((t (assoc "target" cmd-args)))
+                        (and t (cadr t))))
+         (target-exe (find (lambda (target) 
+                             (and
+                               (or
+                                 (not target-name)
+                                 (string=? (begin (write target) (car target)) target-name))
+                             (getv 'exe (cdr target) #f)))
+                           (map cdr targets)))
+         (_ (if (not target-exe) (error "Error: cannot run, exe target not found") '()))
          (target-exe-path 
-           (string-append (car (getv 'output-dir config '("."))) "/" (car (getv 'exe (cdr target-exe)))))
-         (cmd-args (cmd-run-process-args (take-while (lambda (arg) (not (string=? "--" arg))) args))))
+           (string-append (car (getv 'output-dir config '("."))) "/" (car (getv 'exe (cdr target-exe))))))
     (for-each 
       (lambda (target-config) (build-target target-config config cmd-args)) 
       (map cdr targets))

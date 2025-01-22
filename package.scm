@@ -10,9 +10,10 @@
   (output-dir "bin") ; specify the dir where to put the output of targets
 
   ;; libraries have the form accepted by the ##include-once ribbit directive
-  (libraries
+  (includes
     (ribbit "r4rs")
     (ribbit "r4rs/sys")
+    "src/config.scm"
     "src/ribuild.scm")
 
   (features 

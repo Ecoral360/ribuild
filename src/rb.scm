@@ -1,5 +1,6 @@
 (##include-once (ribbit "r4rs"))
 (##include-once (ribbit "r4rs/sys"))
+(##include-once "src/config.scm")
 (##include-once "src/ribuild.scm")
 
 (define (parse-cmd-line args)
@@ -12,6 +13,9 @@ SYNOPSIS
 COMMANDS
   `build`
   Builds the project
+
+  `run`
+  Builds the project and runs the first `exe` target in the project
 
 EXAMPLE
 `rib build`
