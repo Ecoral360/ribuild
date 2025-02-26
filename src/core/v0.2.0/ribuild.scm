@@ -1,3 +1,10 @@
+(include-once "config.scm")
+
+(define (run-rsc entry . options)
+  (let ((ribbit-version-feature (string-append "-f+ ribuild/v" RIBUILD-VERSION " ")))
+    (shell-cmd (string-append "rsc " (apply string-append options) " -f+ ribuild " ribbit-version-feature entry))))
+
+
 (define (includes-to-string includes)
   (call-with-output-file
     "/tmp/__ribbit_comp__tmp_lib.scm"
@@ -18,7 +25,7 @@
                                      (list (string-append "out." target-name))
                                      (list target-exe)))))
          (entry (car (getv 'entry config)))
-         (includes (getv 'includes config) '((ribbit "empty")))
+         (includes (getv 'includes config '((ribbit "empty"))))
          (features (getv 'features config '()))
          (rvm (car (getv 'rvm (cdr target-config) '(())))))
     (let* ((-t (string-append "-t " target-name " "))
@@ -43,7 +50,7 @@
       (or
         (assoc "quiet" cmd-args)
         (display (string-append "[COMPILING] Target `" target-name "`\n")))
-      (let ((result (shell-cmd (string-append "rsc " -t -f -r --prefix-code -o -x entry))))
+      (let ((result (run-rsc entry -t -f -r --prefix-code -o -x)))
         (process-target-output target-name result (assoc "quiet" cmd-args))))))
 
 (define (cmd-build args)

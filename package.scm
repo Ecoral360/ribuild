@@ -1,5 +1,5 @@
 (define-package 
-  (ribuild-version "0.1.0")
+  (ribuild-version "0.2.0")
 
   (name "ribuild")
   (description "A tool to build ribbit projects.")
@@ -10,9 +10,9 @@
   (output-dir "bin") ; specify the dir where to put the output of targets
 
   ;; libraries have the form accepted by the ##include-once ribbit directive
-  (includes
-    (ribbit "r4rs")
-    (ribbit "r4rs/sys")
+  (libraries
+    (r4rs "0.3.4" (ribbit "r4rs"))
+    (r4rs/sys "0.3.4" (ribbit "r4rs/sys"))
     "src/config.scm"
     "src/ribuild.scm")
 

@@ -1,6 +1,6 @@
 (define-package  
   ; don't change the ribuild-version yourself, automatically set by ribuild
-  (ribuild-version "0.1.0")
+  (ribuild-version "0.2.0")
 
   (name "$NAME$")
   (description "$DESCRIPTION$")
@@ -12,7 +12,7 @@
 
   ;; libraries have the form accepted by the ##include-once ribbit directive:
   ;; (ribbit "std-lib") OR "path/to/file.scm"
-  (libraries
+  (includes
     (ribbit "r4rs"))
 
   (features 
