@@ -15,6 +15,10 @@
 (define (load-pkg-config) 
   (process-config (call-with-input-file "package.scm" read)))
 
+(define (load-script-config script-file)
+  (let ((script-content (string-from-file script-file)))
+    (process-config (call-with-input-file "package.scm" read))))
+
 (define noparams (##rib 0 0 5))
 
 (define (getv key config (default noparams))

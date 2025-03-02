@@ -13,12 +13,13 @@
   (includes
     (ribbit "r4rs")
     (ribbit "r4rs/sys")
+    "src/utils.scm"
     "src/config.scm"
-    "src/ribuild.scm")
+    "src/core.scm"
+    "src/cli/cmd.scm")
 
   (features 
     +v-port
-    +prim-no-arity  ; prefix `+` sets the feature value to #t
     -js/web)        ; prefix `-` sets the feature value to #f
 
   (targets
