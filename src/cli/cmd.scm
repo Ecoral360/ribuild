@@ -16,9 +16,10 @@
 (define (cmd-srun args)
   (assert (pair? args) "*** Script name missing.")
 
-  (let ((script-file (car args))
-        (args (cdr args)))
-    (_cmd-run args (load-script-config script-file))))
+  (let* ((script-file (car args))
+         (args (cdr args))
+         (config (load-script-config script-file)))
+    (_cmd-run args config)))
 
 (define (_cmd-run args config)
   (let* ((targets (getv 'targets config))
@@ -77,3 +78,27 @@
         "main.scm"
         (lambda (output-port)
           (write '(display "Hello from Ribuild!\n") output-port))))))
+
+(define (cmd-sinit args)
+  (let* ((script-file (if (null? args) 
+                        (error "*** You must specify a script file") 
+                        (car args)))
+         (concise? (member "-c" args))
+         (template (get-template "script"))
+         (content (string-from-file script-file))
+         (config-idx (string-find content "#;(define-script"))) ;;)
+
+    (if config-idx
+      (error "Ribbit script config already found in the file."))
+
+    (call-with-output-file
+      script-file
+      (lambda (output-port)
+        (display content output-port)
+        (newline output-port)
+        (display "#;" output-port)
+        (display (if concise?
+                   (string-concatenate (string-split template #\newline) "")
+                   template)
+                 output-port)))))
+

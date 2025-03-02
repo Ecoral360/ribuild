@@ -5,6 +5,7 @@
     (##include-once "src/utils.scm")
     (##include-once "src/config.scm")
     (##include-once "src/core.scm")
+    (##include-once "src/cli/utils.scm")
     (##include-once "src/cli/cmd.scm")))
 
 
@@ -56,12 +57,14 @@ EXAMPLE
      (cmd-sbuild (cdr args)))
     ((member (car args) '("sr" "srun"))
      (cmd-srun (cdr args)))
+
     ((string=? (car args) "sinit")
      (cmd-sinit (cdr args)))
 
     ((member (car args) '("-v" "--version"))
      (display RIBUILD-VERSION)
      (newline))
+
     (else (display "Invalid args"))))
 
 

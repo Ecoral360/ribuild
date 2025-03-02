@@ -1,0 +1,8 @@
+(define-script  
+  (ribuild-version "0.1.0")
+  (output-dir "/tmp")
+  (includes (ribbit "r4rs"))
+  (features +prim-no-arity)
+  (targets
+    (target "js" (out "out.js") (exe "out.js.exe"))
+    (target "py" (out "out.py") (exe "out.py.exe"))))

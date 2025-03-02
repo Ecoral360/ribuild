@@ -16,8 +16,14 @@
   (process-config (call-with-input-file "package.scm" read)))
 
 (define (load-script-config script-file)
-  (let ((script-content (string-from-file script-file)))
-    (process-config (call-with-input-file "package.scm" read))))
+  (let* ((script-content (string-from-file script-file))
+         (config-idx (string-find script-content "#;(define-script")) ;;)
+         (config (and config-idx 
+                      (read (open-input-string 
+                              (substring script-content 
+                                         (+ config-idx 2)
+                                         (string-length script-content)))))))
+    (append config (list `(entry ,script-file)))))
 
 (define noparams (##rib 0 0 5))
 

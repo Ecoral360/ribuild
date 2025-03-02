@@ -16,9 +16,11 @@
     "src/utils.scm"
     "src/config.scm"
     "src/core.scm"
+    "src/cli/utils.scm"
     "src/cli/cmd.scm")
 
   (features 
+    +prim-no-arity
     +v-port
     -js/web)        ; prefix `-` sets the feature value to #f
 

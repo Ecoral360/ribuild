@@ -2,5 +2,4 @@
 
 
 (define (get-template template-name)
-  (call-with-input-file
-    (string-append "../templates/" template-name ".rtscm")))
+  (string-from-file (string-append (build-dir) "../../templates/" template-name ".rtscm")))
