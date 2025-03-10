@@ -8,66 +8,85 @@
     (##include-once "src/cli/utils.scm")
     (##include-once "src/cli/cmd.scm")))
 
-
-(define (parse-cmd-line args)
-  (define usage 
-"`rib` - Ribuild : The Ribbit Package Manager
+(define usage 
+  "`rib` - Ribuild : The Ribbit Package Manager
 
 SYNOPSIS
 `rib` <CMD> [OPTION]...
 
 COMMANDS
-  PROJECT COMMANDS
-  `b`, `build`
-  Builds the project
+PROJECT COMMANDS
+`b`, `build`
+Builds the project
 
-  `r`, `run`
-  Builds the project and runs the first `exe` target in the project
+`r`, `run`
+Builds the project and runs the first `exe` target in the project
 
-  SCRIPT COMMANDS
-  `sb`, `sbuild` <SCRIPT> [OPTION]
-  Builds the script
+`init` <PACKAGE-NAME> [OPTION]
+Initializes the package project.
 
-  `sr`, `srun` <SCRIPT> [OPTIONS]
-  Builds the script and runs the first `exe` target in the project
+SCRIPT COMMANDS
+`b`, `build` -s/--script <SCRIPT> [OPTION]
+Builds the script
 
-    OPTIONS
+`init` -s/--script <SCRIPT> [OPTION]
+Initializes the script.
 
-    -o, --output <FILE>
-    By default, the target is built in a tmp directory to avoid cluttering.
-    Setting output will put the target there instead.
+`r`, `run` -s/--script <SCRIPT> [OPTION]
+Builds the script and runs the first `exe` target in the project
+
+OPTION
+
+-o, --output <FILE>
+By default, the target is built in a tmp directory to avoid cluttering.
+Setting output will put the target there instead.
 
 EXAMPLE
 `rib build`
 ")
 
-  (cond 
-    ;;((null? args) (display "*** A command must be specified. Use --help to see usage\n"))
-    ((or (null? args) (member (car args) '("-h" "--help")))
-     (display usage))
+(define (br-call bool-cond fn1 fn2 . args)
+  (apply (if bool-cond fn1 fn2) args))
 
-    ((member (car args) '("b" "build"))
-     (cmd-build (cdr args)))
-    ((member (car args) '("r" "run"))
-     (cmd-run (cdr args)))
-    ((string=? (car args) "init")
-     (cmd-init (cdr args)))
+(define (parse-cmd-line args)
+  (if (or (null? args) (member (car args) '("-h" "--help")))
+    (begin 
+      (display usage)
+      (##exit 0)))
+  
+  (let ((script-cmd? (and (pair? (cdr args))
+                          (member (cadr args) '("-s" "--script")))))
+    (cond 
+      ;;((null? args) (display "*** A command must be specified. Use --help to see usage\n"))
 
-    ((member (car args) '("sb" "sbuild"))
-     (cmd-sbuild (cdr args)))
-    ((member (car args) '("sr" "srun"))
-     (cmd-srun (cdr args)))
+      ((member (car args) '("b" "build"))
+       (br-call script-cmd? cmd-sbuild cmd-build (cdr args)))
+      ((member (car args) '("r" "run"))
+       (br-call script-cmd? cmd-srun cmd-run (cdr args)))
+      ((string=? (car args) "init")
+       (br-call script-cmd? cmd-sinit cmd-init (cdr args)))
 
-    ((string=? (car args) "sinit")
-     (cmd-sinit (cdr args)))
+      ((string=? (car args) "test")
+       (br-call script-cmd? cmd-stest cmd-test (cdr args)))
+      ;; ((member (car args) '("sb" "sbuild"))
+      ;;  (cmd-sbuild (cdr args)))
+      ;; ((member (car args) '("sr" "srun"))
+      ;;  (cmd-srun (cdr args)))
+      ;;
+      ;; ((string=? (car args) "sinit")
+      ;;  (cmd-sinit (cdr args)))
 
-    ((member (car args) '("-v" "--version"))
-     (display RIBUILD-VERSION)
-     (newline))
+      ((member (car args) '("-v" "--version"))
+       (display RIBUILD-VERSION)
+       (newline))
 
-    (else (display "Invalid args"))))
+      (else (display "Invalid args")))))
 
 
-(parse-cmd-line (cdr (cmd-line)))
+(if-feature ribuild/test
+  (display "All tests passed !\n")
+  (parse-cmd-line (cdr (cmd-line))))
+
+
 
 

@@ -6,9 +6,14 @@
       (lambda (target-config) (build-target target-config config cmd-args)) 
     (map cdr targets))))
 
-(define (cmd-test args)
-  (cmd-run `("-f+" "test" ,@args)))
-
+(define (cmd-sbuild args)
+  (let* ((script-file (cadr args))
+         (config (load-script-config script-file))
+         (targets (getv 'targets config))
+         (cmd-args (cddr args)))
+    (for-each 
+      (lambda (target-config) (build-target target-config config cmd-args)) 
+    (map cdr targets))))
 
 (define (cmd-run args)
   (_cmd-run args (load-pkg-config)))
@@ -16,8 +21,8 @@
 (define (cmd-srun args)
   (assert (pair? args) "*** Script name missing.")
 
-  (let* ((script-file (car args))
-         (args (cdr args))
+  (let* ((script-file (cadr args))
+         (args (cddr args))
          (config (load-script-config script-file)))
     (_cmd-run args config)))
 
@@ -26,6 +31,8 @@
          (cmd-args (cmd-run-process-args (take-while (lambda (arg) (not (string=? "--" arg))) args)))
          (target-name (let ((t (assoc "target" cmd-args)))
                         (and t (cadr t))))
+         (target-output-suffix (or (assocadr "target-output-suffix" cmd-args) ""))
+         (target-exe-suffix (or (assocadr "target-exe-suffix" cmd-args) target-output-suffix))
          (target-exe (find (lambda (target) 
                              (and
                                (or
@@ -35,7 +42,7 @@
                            (map cdr targets)))
          (_ (if (not target-exe) (error "Error: cannot run, exe target not found") '()))
          (target-exe-path 
-           (string-append (car (getv 'output-dir config '("."))) "/" (car (getv 'exe (cdr target-exe))))))
+           (string-append (car (getv 'output-dir config '("."))) "/" (car (getv 'exe (cdr target-exe))) target-exe-suffix)))
     (for-each 
       (lambda (target-config) (build-target target-config config cmd-args)) 
       (map cdr targets))
@@ -50,10 +57,18 @@
       cmd-args
       (let ((arg (car rest)))
         (cond
-          ((member arg '("-q" "--quiet")) 
-           (loop (cons '("quiet" #t) cmd-args) (cdr rest)))
-          ((member arg '("-t" "--target"))
-           (loop (cons '("target" (cadr rest)) cmd-args) (cddr rest)))
+          ((member arg (list "-q" "--quiet")) 
+           (loop (cons (list "quiet" #t) cmd-args) (cdr rest)))
+          ((member arg (list "-t" "--target"))
+           (loop (cons (list "target" (cadr rest)) cmd-args) (cddr rest)))
+          ((member arg (list "-x" "--exe"))
+           (loop (cons (list "exe" (cadr rest)) cmd-args) (cddr rest)))
+          ((member arg (list "-o" "--output"))
+           (loop (cons (list "output" (cadr rest)) cmd-args) (cddr rest)))
+          ((member arg (list "--target-output-suffix"))
+           (loop (cons (list "target-output-suffix" (cadr rest)) cmd-args) (cddr rest)))
+          ((member arg (list "--target-exe-suffix"))
+           (loop (cons (list "target-exe-suffix" (cadr rest)) cmd-args) (cddr rest)))
           (else 
             (display (string-append "Ignoring unknown option '" arg "'"))))))))
 
@@ -80,9 +95,9 @@
           (write '(display "Hello from Ribuild!\n") output-port))))))
 
 (define (cmd-sinit args)
-  (let* ((script-file (if (null? args) 
+  (let* ((script-file (if (null? (cdr args))
                         (error "*** You must specify a script file") 
-                        (car args)))
+                        (cadr args)))
          (concise? (member "-c" args))
          (template (get-template "script"))
          (content (string-from-file script-file))
@@ -102,3 +117,20 @@
                    template)
                  output-port)))))
 
+(define (add-feature-flag config . flags)
+  (let ((features (assq 'features (cdr config))))
+    (if features
+      (set-cdr! features (append flags (cdr features)))
+      (set-cdr! config (cons `(features ,@flags) (cdr config))))
+    config))
+
+(define (cmd-test args)
+  (_cmd-run (append (list "--target-output-suffix" "-test") args) (add-feature-flag (load-pkg-config) '+test '+ribuild/test)))
+
+(define (cmd-stest args)
+  (assert (pair? args) "*** Script name missing.")
+
+  (let* ((script-file (cadr args))
+         (args (cddr args))
+         (config (add-feature-flag (load-script-config script-file) '+test '+ribuild/test)))
+    (_cmd-run (append (list "--target-output-suffix" "-test") args) config)))

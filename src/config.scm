@@ -7,10 +7,9 @@
       (error "Wrong version (expected" RIBUILD-VERSION "but found" version ")"))))
 
 (define (process-config config)
-  (if (eq? (car config) 'define-package)
+  (if (memq (car config) '(define-package define-library))
     (validate-ribuild-version (cdr config))
-    (error "package.scm must only contain a call to define-package")))
-
+    (error "package.scm must only contain a call to define-package or define-library")))
 
 (define (load-pkg-config) 
   (process-config (call-with-input-file "package.scm" read)))
@@ -32,6 +31,6 @@
     (if (pair? pair)
       (cdr pair)
       (if (eq? default noparams)
-        (error "Missing required field" key "in package.scm")
+        (error "Missing required field `" key "` in package.scm")
         default))))
 

@@ -41,6 +41,10 @@
                   value-sym* vars-value*)))
        ,@body)))
 
+(define (assocadr val lst)
+  (let ((x (assoc val lst)))
+    (and x (cadr x))))
+
 (define (take-while predicate lst)
   (let loop ((final '())
              (rest lst))
@@ -52,6 +56,10 @@
 (define (assert test msg)
   (if (not test)
     (error msg)))
+
+(define (assert-equal actual expected msg)
+  (if (not (equal? actual expected))
+    (error msg "Expected:" expected ", Got:" actual)))
 
 (define (display->file filename content)
   (call-with-output-file
@@ -107,12 +115,16 @@
             (string-append final (caddr pat)))
           (inner-string-replace
             (substring-tail-view str 1)
-            (##list->string-opt 
-             (append (##field0 final) (##field0 (##field0 str))) 
-             (##+ (##field1 final) 1)))))))
+            (string-append final (string (car (string->list str)))))))))
 
   (set! substr-repl* (map (lambda (substr-repl) (cons (string-length (car substr-repl)) substr-repl))
                           substr-repl*))
 
   (inner-string-replace str ""))
 
+(if-feature ribuild/test
+  (begin
+    (assert-equal 
+      (string-replace* "ab ba ca ba ooo" (list "ba" "x") (list "ca" "op"))
+      "ab x op x ooo"
+      "Failed `string-replace*`")))

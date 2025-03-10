@@ -17,6 +17,7 @@
 
   (features ; sets the features for all the targets
     +prim-no-arity  ; prefix `+` sets the feature value to #t
+    +v-port
     ;-other-feature ; prefix `-` sets the feature value to #f
     )
 
