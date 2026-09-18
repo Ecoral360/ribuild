@@ -1,12 +1,12 @@
 (if-feature (not ribuild)
   (begin
-    (##include-once (ribbit "r4rs"))
-    (##include-once (ribbit "r4rs/sys"))
-    (##include-once "src/utils.scm")
-    (##include-once "src/config.scm")
-    (##include-once "src/core.scm")
-    (##include-once "src/cli/utils.scm")
-    (##include-once "src/cli/cmd.scm")))
+    (%%include-once (ribbit "r4rs"))
+    (%%include-once (ribbit "r4rs/sys"))
+    (%%include-once "src/utils.scm")
+    (%%include-once "src/config.scm")
+    (%%include-once "src/core.scm")
+    (%%include-once "src/cli/utils.scm")
+    (%%include-once "src/cli/cmd.scm")))
 
 (define usage 
   "`rib` - Ribuild : The Ribbit Package Manager
@@ -52,7 +52,7 @@ EXAMPLE
   (if (or (null? args) (member (car args) '("-h" "--help")))
     (begin 
       (display usage)
-      (##exit 0)))
+      (%%exit 0)))
   
   (let ((script-cmd? (and (pair? (cdr args))
                           (member (cadr args) '("-s" "--script")))))

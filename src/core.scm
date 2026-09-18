@@ -2,7 +2,7 @@
   (call-with-output-file
     path
     (lambda (port)
-      (for-each (lambda (lib) (write (list '##include-once lib) port)) includes))))
+      (for-each (lambda (lib) (write (list '%%include-once lib) port)) includes))))
 
 (define (process-target-output target-name output quiet?)
   (if (string-prefix? "Error: " output)

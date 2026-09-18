@@ -72,7 +72,7 @@
           (else 
             (display (string-append "Ignoring unknown option '" arg "'"))))))))
 
-;(define init-template (##include-string "../../templates/init.scm"))
+;(define init-template (%%include-string "../../templates/init.scm"))
 
 (define (cmd-init args)
   (if (file-exists? "package.scm")
@@ -125,12 +125,19 @@
     config))
 
 (define (cmd-test args)
-  (_cmd-run (append (list "--target-output-suffix" "-test") args) (add-feature-flag (load-pkg-config) '+test '+ribuild/test)))
+  (_cmd-run (append (list "--target-output-suffix" "-test") args)
+            (add-feature-flag 
+              (load-pkg-config)
+              '+test 
+              '+ribuild/test)))
 
 (define (cmd-stest args)
   (assert (pair? args) "*** Script name missing.")
 
   (let* ((script-file (cadr args))
          (args (cddr args))
-         (config (add-feature-flag (load-script-config script-file) '+test '+ribuild/test)))
+         (config (add-feature-flag 
+                   (load-script-config script-file)
+                   '+test 
+                   '+ribuild/test)))
     (_cmd-run (append (list "--target-output-suffix" "-test") args) config)))

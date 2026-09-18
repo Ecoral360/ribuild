@@ -81,14 +81,14 @@
         (find fn (cdr lst)))
       #f)))
 
-(define (##list->string-opt lst len) (##rib lst len string-type))
+(define (%%list->string-opt lst len) (%%rib lst len string-type))
 (define (substring-tail-view str start)
-  (##list->string-opt (list-tail (##field0 str) start) (##- (##field1 str) start)))
+  (%%list->string-opt (list-tail (%%field0 str) start) (%%- (%%field1 str) start)))
 
 (define (string-replace str substr repl)
   (define substr-len (string-length substr))
   (define (inner-string-replace str final)
-    (if (= (##field1 str) 0)
+    (if (= (%%field1 str) 0)
       final
       (let ((match (string-prefix? substr str)))
         (if match
@@ -97,9 +97,9 @@
             (string-append final repl))
           (inner-string-replace
             (substring-tail-view str 1)
-            (##list->string-opt 
-             (append (##field0 final) (##field0 (##field0 str))) 
-             (##+ (##field1 final) 1)))))))
+            (%%list->string-opt 
+             (append (%%field0 final) (%%field0 (%%field0 str))) 
+             (%%+ (%%field1 final) 1)))))))
 
   (inner-string-replace str ""))
 

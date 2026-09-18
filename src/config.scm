@@ -24,7 +24,7 @@
                                          (string-length script-content)))))))
     (append config (list `(entry ,script-file)))))
 
-(define noparams (##rib 0 0 5))
+(define noparams (%%rib 0 0 5))
 
 (define (getv key config (default noparams))
   (let ((pair (assq key config)))
