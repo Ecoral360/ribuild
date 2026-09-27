@@ -89,8 +89,9 @@
         "package.scm"
         (lambda (output-port)
           (display processed-template output-port)))
+      (shell-cmd "mkdir -p src build")
       (call-with-output-file
-        "main.scm"
+        "src/main.scm"
         (lambda (output-port)
           (write '(display "Hello from Ribuild!\n") output-port))))))
 

@@ -4,12 +4,6 @@ A package manager for ribbit
 
 ## Installation
 
-The `ribuild` installer will need to install a compatible ribbit compiler (which is currently a fork of the original compiler).
-
-To ensure a seemless installation and usage of `ribuild`, _you should not install the ribbit compiler yourself_
-and let `ribuild` do it (the installation step will make `rsc` accessible,
-so you will be able to use the stand alone compiler after installing `ribuild`).
-
 1. Install gambit
 2. Run
    ```sh
@@ -26,7 +20,7 @@ so you will be able to use the stand alone compiler after installing `ribuild`).
 
 ```sh
 rb init '<NAME>' [-d {destination=.}]
-# creates a ribconf.scm file in the destination (default .)
+# creates a package.scm file in the destination (default .)
 # NAME is the name of the package being created by ribuild
 
 rb run [-t target]
