@@ -88,7 +88,7 @@
       (call-with-output-file
         "package.scm"
         (lambda (output-port)
-          (display template output-port)))
+          (display processed-template output-port)))
       (call-with-output-file
         "main.scm"
         (lambda (output-port)
