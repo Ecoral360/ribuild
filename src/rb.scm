@@ -6,7 +6,10 @@
     (%%include-once "src/config.scm")
     (%%include-once "src/core.scm")
     (%%include-once "src/cli/utils.scm")
-    (%%include-once "src/cli/cmd.scm")))
+    (%%include-once "src/cli/cmd/build.scm")
+    (%%include-once "src/cli/cmd/init.scm")
+    (%%include-once "src/cli/cmd/run.scm")
+    (%%include-once "src/cli/cmd/test.scm")))
 
 (define usage 
   "`rib` - Ribuild : The Ribbit Package Manager

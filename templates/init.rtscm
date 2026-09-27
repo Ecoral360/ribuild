@@ -10,7 +10,7 @@
   (entry "src/main.scm") ; specify the entry point of the program
   (output-dir "build") ; specify the dir where to put the output of targets
 
-  ;; libraries have the form accepted by the ##include-once ribbit directive:
+  ;; libraries have the form accepted by the %%include-once ribbit directive:
   ;; (ribbit "std-lib") OR "path/to/file.scm"
   (includes
     (ribbit "r4rs"))

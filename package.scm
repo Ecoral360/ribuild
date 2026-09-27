@@ -9,7 +9,7 @@
   (entry "src/rb.scm")
   (output-dir "bin") ; specify the dir where to put the output of targets
 
-  ;; libraries have the form accepted by the ##include-once ribbit directive
+  ;; libraries have the form accepted by the %%include-once ribbit directive
   (includes
     (ribbit "r4rs")
     (ribbit "r4rs/sys")
@@ -17,7 +17,10 @@
     "src/config.scm"
     "src/core.scm"
     "src/cli/utils.scm"
-    "src/cli/cmd.scm")
+    "src/cli/cmd/build.scm"
+    "src/cli/cmd/init.scm"
+    "src/cli/cmd/run.scm"
+    "src/cli/cmd/test.scm")
 
   (features 
     +prim-no-arity
