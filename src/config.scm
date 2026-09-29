@@ -17,12 +17,14 @@
 (define (load-script-config script-file)
   (let* ((script-content (string-from-file script-file))
          (config-idx (string-find script-content "#;(define-script")) ;;)
-         (config (and config-idx 
-                      (read (open-input-string 
-                              (substring script-content 
-                                         (+ config-idx 2)
-                                         (string-length script-content)))))))
-    (append config (list `(entry ,script-file)))))
+         (config (if config-idx
+                   (read (open-input-string
+                           (substring script-content
+                                      (+ config-idx 2)
+                                      (string-length script-content))))
+                   (error "*** No `#;(define-script ...)` config found in" script-file))))
+    ;; the entry of a script is the script file itself
+    (append (validate-ribuild-version (cdr config)) (list `(entry ,script-file)))))
 
 (define noparams (%%rib 0 0 5))
 

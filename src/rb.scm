@@ -6,33 +6,71 @@ SYNOPSIS
 
 COMMANDS
 PROJECT COMMANDS
-`b`, `build`
-Builds the project
+`init` <PACKAGE-NAME>
+Creates the <PACKAGE-NAME> directory with a package.scm, a src/main.scm
+and a build directory.
 
-`r`, `run`
-Builds the project and runs the first `exe` target in the project
+`b`, `build` [OPTION]...
+Builds every target of the project.
 
-`init` <PACKAGE-NAME> [OPTION]
-Initializes the package project.
+`r`, `run` [OPTION]... [-- <ARGS>...]
+Builds every target of the project, then runs the first target that has
+an `exe` (or the one given with -t).
+
+`test` [OPTION]... [-- <ARGS>...]
+Like `run`, with the `test` and `ribuild/test` features enabled. Outputs
+get the `-test` suffix.
 
 SCRIPT COMMANDS
-`b`, `build` -s/--script <SCRIPT> [OPTION]
-Builds the script
+`init` -s/--script <SCRIPT> [-c]
+Appends the default script config to <SCRIPT> (on one line with -c).
 
-`init` -s/--script <SCRIPT> [OPTION]
-Initializes the script.
+`b`, `build` -s/--script <SCRIPT> [OPTION]...
+Builds the script.
 
-`r`, `run` -s/--script <SCRIPT> [OPTION]
-Builds the script and runs the first `exe` target in the project
+`r`, `run` -s/--script <SCRIPT> [OPTION]... [-- <ARGS>...]
+Builds the script, then runs the first target that has an `exe`.
+
+`test` -s/--script <SCRIPT> [OPTION]... [-- <ARGS>...]
+Like `run`, with the `test` and `ribuild/test` features enabled.
+
+OTHER
+`-v`, `--version`
+Prints the version of ribuild.
+
+`-h`, `--help`
+Prints this message.
 
 OPTION
+By default, targets are written in the `output-dir` of the package
+(`.` if not set).
+
+-t, --target <NAME>
+With `run` and `test`, runs the target <NAME>.
 
 -o, --output <FILE>
-By default, the target is built in a tmp directory to avoid cluttering.
-Setting output will put the target there instead.
+Writes the compiled program to <FILE> instead.
 
-EXAMPLE
+-x, --exe <FILE>
+Writes the executable to <FILE> instead.
+
+-q, --quiet
+Hides the [COMPILING] and [DONE] messages.
+
+--target-output-suffix <SUFFIX>
+Appends <SUFFIX> to the name of the compiled program.
+
+--target-exe-suffix <SUFFIX>
+Appends <SUFFIX> to the name of the executable (defaults to the output suffix).
+
+-- <ARGS>...
+With `run` and `test`, passes <ARGS> to the program.
+
+EXAMPLES
+`rib init hello`
 `rib build`
+`rib run -t js -- arg1 arg2`
+`rib run -s script.scm`
 ")
 
 (define (br-call bool-cond fn1 fn2 . args)

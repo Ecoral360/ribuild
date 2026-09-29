@@ -20,7 +20,7 @@
                              (and
                                (or
                                  (not target-name)
-                                 (string=? (begin (write target) (car target)) target-name))
+                                 (string=? (car target) target-name))
                                (getv 'exe (cdr target) #f)))
                            (map cdr targets)))
          (_ (if (not target-exe) (error "Error: cannot run, exe target not found") '()))

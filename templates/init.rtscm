@@ -23,10 +23,9 @@
     )
 
   (targets
-    (target "py" ; adds python as a target of the package
-      (out "${pkg-name}-py.scm") ; overrides the default name given to output program
-      (exe "${pkg-name}.py.exe"))   ; adds python as a target of the package
+    (target "c" ; adds python as a target of the package
+      (output "${pkg-name}.c") ; overrides the default name given to output program
+      (exe "${pkg-name}.c.exe"))   ; adds python as a target of the package
 
     (target "js" ; adds javascript as a target of the package
-      (out "${pkg-name}-js.scm") ; overrides the default name given to output program
       (exe "${pkg-name}.js.exe")))) ; creates an executable for the target (not available for all target)

@@ -4,5 +4,4 @@
   (includes (ribbit "r4rs"))
   (features +prim-no-arity +v-port)
   (targets
-    (target "js" (out "out.js") (exe "out.js.exe"))
-    (target "py" (out "out.py") (exe "out.py.exe"))))
+    (target "js" (exe "out.js.exe"))))

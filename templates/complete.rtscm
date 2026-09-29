@@ -29,5 +29,5 @@
       (rvm "rvms/py/rvm.py")) ; specify a custom rvm for that target
 
     (target "js" ; adds javascript as a target of the package
-      (out "$NAME$-js.scm") ; overrides the default name given to output program
+      (output "$NAME$-js.scm") ; overrides the default name given to output program
       (exe "$NAME$.exe")))) ; creates an executable for the target (not available for all target)

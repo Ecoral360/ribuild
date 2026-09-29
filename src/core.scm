@@ -3,6 +3,9 @@
     (display (string-append output "\n[ERROR] skipping target `" target-name "`\n\n"))
     (or quiet? (display (string-append (if (string=? output "") "" (string-append output "\n")) "[DONE] target `" target-name "`\n\n")))))
 
+;; generated in the current directory, so that the includes resolve like in a package
+(define script-build-file "__ribuild_script__.scm")
+
 (define (build-target target-config config cmd-args)
   (let* ((target-name (car target-config))
          (target-exe (car (getv 'exe (cdr target-config) (list '()))))
@@ -21,9 +24,15 @@
            ;; (--prefix-code (begin
            ;;                  (includes-to-string includes "/tmp/__ribbit_comp__tmp_lib.scm")
            ;;                  "--prefix-code /tmp/__ribbit_comp__tmp_lib.scm "))
-           (code (let ((file (string-append (symbol->string entry) ".scm")))
-                   (includes-to-string includes file entry)
-                   file))
+           ;; a package entry is a procedure, a script entry is the script file
+           (script? (string? entry))
+           (code (if script?
+                   (begin
+                     (includes-to-string (append includes (list entry)) script-build-file)
+                     script-build-file)
+                   (let ((file (string-append (symbol->string entry) ".scm")))
+                     (includes-to-string includes file entry)
+                     file)))
            (-o (string-append "-o " 
                               (or (assocadr "output" cmd-args)
                                   (string-append (car (getv 'output-dir config '("."))) "/" target-output))
@@ -54,34 +63,35 @@
       ;;(let ((result (shell-cmd (string-append "rsc " -t -f " -f+ ribuild " -r --prefix-code -o -x entry))))
       ;;  (process-target-output target-name result (assoc "quiet" cmd-args))))))
       (let ((result (shell-cmd (string-append "rsc " -t -f " -f+ ribuild " -r -o -x code))))
+        (if script? (shell-cmd (string-append "rm -f " script-build-file)))
         (process-target-output target-name result (assoc "quiet" cmd-args))))))
 
-(define (build-library config cmd-args)
-  (let* ((entry (car (getv 'entry config)))
-         (includes (getv 'includes config) '((ribbit "empty")))
-         (features (getv 'features config '())))
-    (let* ((-t (string-append "-t " target-name " "))
-           (--prefix-code (begin
-                            (includes-to-string includes)
-                            "--prefix-code /tmp/__ribbit_comp__tmp_lib.scm "))
-           (-o (string-append "-o " (car (getv 'output-dir config '("."))) "/" target-output " "))
-           (-x (if (null? target-exe)
-                 ""
-                 (string-append "-x " (car (getv 'output-dir config '("."))) "/" target-exe " ")))
-           (-f (apply string-append (map 
-                                      (lambda (feature) (string-append 
-                                                          "-f" 
-                                                          (string (string-ref feature 0))
-                                                          " "
-                                                          (substring feature 1 
-                                                                     (string-length feature))
-                                                          " "))
-                                      (map symbol->string features))))
-           (-r (if (null? rvm) "" (string-append "-r " rvm " "))))
-      ;(pp (string-append "rsc " -t --prefix-code -f -o -x entry))
-      (or
-        (assoc "quiet" cmd-args)
-        (display (string-append "[COMPILING] Target `" target-name "`\n")))
-      (let ((result (shell-cmd (string-append "rsc " -t -f " -f+ ribuild " -r --prefix-code -o -x entry))))
-        (process-target-output target-name result (assoc "quiet" cmd-args))))))
+;; (define (build-library config cmd-args)
+;;   (let* ((entry (car (getv 'entry config)))
+;;          (includes (getv 'includes config) '((ribbit "empty")))
+;;          (features (getv 'features config '())))
+;;     (let* ((-t (string-append "-t " target-name " "))
+;;            (--prefix-code (begin
+;;                             (includes-to-string includes)
+;;                             "--prefix-code /tmp/__ribbit_comp__tmp_lib.scm "))
+;;            (-o (string-append "-o " (car (getv 'output-dir config '("."))) "/" target-output " "))
+;;            (-x (if (null? target-exe)
+;;                  ""
+;;                  (string-append "-x " (car (getv 'output-dir config '("."))) "/" target-exe " ")))
+;;            (-f (apply string-append (map 
+;;                                       (lambda (feature) (string-append 
+;;                                                           "-f" 
+;;                                                           (string (string-ref feature 0))
+;;                                                           " "
+;;                                                           (substring feature 1 
+;;                                                                      (string-length feature))
+;;                                                           " "))
+;;                                       (map symbol->string features))))
+;;            (-r (if (null? rvm) "" (string-append "-r " rvm " "))))
+;;       ;(pp (string-append "rsc " -t --prefix-code -f -o -x entry))
+;;       (or
+;;         (assoc "quiet" cmd-args)
+;;         (display (string-append "[COMPILING] Target `" target-name "`\n")))
+;;       (let ((result (shell-cmd (string-append "rsc " -t -f " -f+ ribuild " -r --prefix-code -o -x entry))))
+;;         (process-target-output target-name result (assoc "quiet" cmd-args))))))
 

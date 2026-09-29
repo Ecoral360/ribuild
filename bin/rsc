@@ -1,3 +1,0 @@
-#!/bin/sh
-
-"$(dirname $(dirname $0))"/ribbit/src/rsc.exe $@

@@ -4,7 +4,7 @@
   (name "ribuild")
   (description "A tool to build ribbit projects.")
   (version "0.1.0")
-  (authors ("Mathis Laroche"))
+  (authors ("Mathis Laroche" "ecomath360@gmail.com"))
 
   (entry main)
   (output-dir "bin") ; specify the dir where to put the output of targets
