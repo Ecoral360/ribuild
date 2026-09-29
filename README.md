@@ -28,8 +28,6 @@ Scheme scripts that carry their own build configuration.
 
 ## Requirements
 
-- [Gambit Scheme](https://gambitscheme.org/) (v4.9.4+), used to build the
-  Ribbit compiler
 - The [Ribbit compiler](https://github.com/udem-dlteam/ribbit) (make sure `rsc` is in `PATH`)
 - [Node.js](https://nodejs.org/), since `rib` itself is compiled to JavaScript
 - The runtime of every target host you build for (e.g. `python3` for a `py`
