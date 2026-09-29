@@ -7,13 +7,14 @@
   (version "0.1.0")
   (authors ("${author}"))
 
-  (entry "src/main.scm") ; specify the entry point of the program
+  (entry main) ; specify the entry point of the program
   (output-dir "build") ; specify the dir where to put the output of targets
 
   ;; libraries have the form accepted by the %%include-once ribbit directive:
   ;; (ribbit "std-lib") OR "path/to/file.scm"
   (includes
-    (ribbit "r4rs"))
+    (ribbit "r4rs")
+    "src/**")
 
   (features ; sets the features for all the targets
     +prim-no-arity  ; prefix `+` sets the feature value to #t

@@ -6,7 +6,7 @@ RSC := rsc
 all: ribuild
 
 ribuild bin/rib: # rsc
-	$(RSC) -t js -f+ v-port -o out.js ./src/rb.scm 
+	$(RSC) -t js -f+ v-port -o out.js ./main.scm 
 	node out.js build
 	rm out.js
 

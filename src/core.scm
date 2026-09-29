@@ -1,9 +1,3 @@
-(define (includes-to-string includes path)
-  (call-with-output-file
-    path
-    (lambda (port)
-      (for-each (lambda (lib) (write (list '%%include-once lib) port)) includes))))
-
 (define (process-target-output target-name output quiet?)
   (if (string-prefix? "Error: " output)
     (display (string-append output "\n[ERROR] skipping target `" target-name "`\n\n"))
@@ -24,9 +18,12 @@
          (features (getv 'features config '()))
          (rvm (car (getv 'rvm (cdr target-config) '(())))))
     (let* ((-t (string-append "-t " target-name " "))
-           (--prefix-code (begin
-                            (includes-to-string includes "/tmp/__ribbit_comp__tmp_lib.scm")
-                            "--prefix-code /tmp/__ribbit_comp__tmp_lib.scm "))
+           ;; (--prefix-code (begin
+           ;;                  (includes-to-string includes "/tmp/__ribbit_comp__tmp_lib.scm")
+           ;;                  "--prefix-code /tmp/__ribbit_comp__tmp_lib.scm "))
+           (code (let ((file (string-append (symbol->string entry) ".scm")))
+                   (includes-to-string includes file entry)
+                   file))
            (-o (string-append "-o " 
                               (or (assocadr "output" cmd-args)
                                   (string-append (car (getv 'output-dir config '("."))) "/" target-output))
@@ -54,7 +51,9 @@
         (assoc "quiet" cmd-args)
         (display (string-append "[COMPILING] Target `" target-name "`\n")))
       ;;(pp (string-append "rsc " -t -f " -f+ ribuild " -r --prefix-code -o -x entry))
-      (let ((result (shell-cmd (string-append "rsc " -t -f " -f+ ribuild " -r --prefix-code -o -x entry))))
+      ;;(let ((result (shell-cmd (string-append "rsc " -t -f " -f+ ribuild " -r --prefix-code -o -x entry))))
+      ;;  (process-target-output target-name result (assoc "quiet" cmd-args))))))
+      (let ((result (shell-cmd (string-append "rsc " -t -f " -f+ ribuild " -r -o -x code))))
         (process-target-output target-name result (assoc "quiet" cmd-args))))))
 
 (define (build-library config cmd-args)

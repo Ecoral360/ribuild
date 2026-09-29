@@ -1,23 +1,25 @@
 (define (cmd-init args)
-  (if (file-exists? "package.scm")
-    (error "Cannot create package.scm because a package.scm is already defined in this directory.")
-    (let* ((package-name (if (null? args) 
-                           (error "*** You must specify a name to your package") 
-                           (car args)))
-           (template (get-template "init"))
-           (processed-template (string-replace*
-                                 template
-                                 (list "${pkg-name}" package-name)
-                                 (list "${author}" "John Doe"))))
-      (call-with-output-file
-        "package.scm"
-        (lambda (output-port)
-          (display processed-template output-port)))
-      (shell-cmd "mkdir -p src build")
-      (call-with-output-file
-        "src/main.scm"
-        (lambda (output-port)
-          (write '(display "Hello from Ribuild!\n") output-port))))))
+  (let* ((package-name (if (null? args) 
+                         (error "*** You must specify a name to your package") 
+                         (car args)))
+         (template (get-template "init"))
+         (processed-template (string-replace*
+                               template
+                               (list "${pkg-name}" package-name)
+                               (list "${author}" "John Doe"))))
+    (mkdir package-name)
+    (if (file-exists? (string-append package-name "/package.scm"))
+      (error "Cannot create package.scm because a package.scm is already defined for this package.")
+      (begin
+        (call-with-output-file
+          (string-append package-name "/package.scm")
+          (lambda (output-port)
+            (display processed-template output-port)))
+        (mkdir (string-append package-name "/src") (string-append package-name "/build"))
+        (call-with-output-file
+          (string-append package-name "/src/main.scm")
+          (lambda (output-port)
+            (write '(define (main) (display "Hello from Ribuild!\n")) output-port)))))))
 
 (define (cmd-sinit args)
   (let* ((script-file (if (null? (cdr args))
