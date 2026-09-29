@@ -57,6 +57,10 @@ Writes the executable to <FILE> instead.
 -q, --quiet
 Hides the [COMPILING] and [DONE] messages.
 
+-k, --keep
+Keeps the generated entry file (<entry>.scm, or __ribuild_script__.scm for
+scripts) instead of removing it after the compilation.
+
 --target-output-suffix <SUFFIX>
 Appends <SUFFIX> to the name of the compiled program.
 

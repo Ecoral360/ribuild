@@ -1,5 +1,5 @@
 (define-package 
-  (ribuild-version "0.1.0")
+  (ribuild-version "1")
 
   (name "ribuild")
   (description "A tool to build ribbit projects.")
@@ -18,8 +18,8 @@
   (features 
     +prim-no-arity
     +v-port
-    -js/web)        ; prefix `-` sets the feature value to #f
+    -js/web)
 
   (targets
-    (target "js" ; adds javascript as a target of the package
-      (exe "rib")))) ;; overrides the default name given to output program
+    (target "js"
+      (exe "rib"))))

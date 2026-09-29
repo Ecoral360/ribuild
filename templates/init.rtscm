@@ -1,6 +1,6 @@
 (define-package  
   ; don't change the ribuild-version yourself, automatically set by ribuild
-  (ribuild-version "0.1.0")
+  (ribuild-version "${ribuild-version}")
 
   (name "${pkg-name}")
   (description "Add your description here !")
@@ -23,9 +23,12 @@
     )
 
   (targets
-    (target "c" ; adds python as a target of the package
-      (output "${pkg-name}.c") ; overrides the default name given to output program
-      (exe "${pkg-name}.c.exe"))   ; adds python as a target of the package
+    (target "c" ; adds c as a target of the package
+      (output "${pkg-name}.c")
+      (exe "${pkg-name}.c.exe"))
 
     (target "js" ; adds javascript as a target of the package
-      (exe "${pkg-name}.js.exe")))) ; creates an executable for the target (not available for all target)
+      (exe "${pkg-name}.js.exe"))
+
+    (target "py" ; adds python as a target of the package
+      (exe "${pkg-name}.py.exe"))))

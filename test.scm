@@ -1,4 +1,0 @@
-;;;; RIBUILD
-#;(define-script )
-
-

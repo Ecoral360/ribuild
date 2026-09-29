@@ -1,5 +1,5 @@
 (define-script  
-  (ribuild-version "0.1.0")
+  (ribuild-version "${ribuild-version}")
   (output-dir "/tmp")
   (includes (ribbit "r4rs"))
   (features +prim-no-arity +v-port)

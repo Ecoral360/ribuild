@@ -7,7 +7,7 @@ all: ribuild
 
 ribuild bin/rib: # rsc
 	$(RSC) -t js -f+ v-port -o out.js ./main.scm 
-	node out.js build
+	node out.js build --keep
 	rm out.js
 
 # rsc ribbit/src/rsc.exe: ribbit ribbit/src/rsc.scm

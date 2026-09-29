@@ -1,6 +1,6 @@
 (define-package  
   ; don't change the ribuild-version yourself, automatically set by ribuild
-  (ribuild-version "0.1.0")
+  (ribuild-version "${ribuild-version}")
 
   (name "$NAME$")
   (description "$DESCRIPTION$")
@@ -24,7 +24,7 @@
     (target "py" ; adds python as a target of the package
       (features
         -prim-no-arity) ; overrides the global feature
-      (libraries ; libraries used only with this target
+      (includes ; includes used only with this target
         "mylib.scm")
       (rvm "rvms/py/rvm.py")) ; specify a custom rvm for that target
 

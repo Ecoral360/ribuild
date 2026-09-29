@@ -5,6 +5,7 @@
          (template (get-template "init"))
          (processed-template (string-replace*
                                template
+                               (list "${ribuild-version}" RIBUILD-VERSION)
                                (list "${pkg-name}" package-name)
                                (list "${author}" "John Doe"))))
     (mkdir package-name)

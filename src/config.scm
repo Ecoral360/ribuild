@@ -1,4 +1,4 @@
-(define RIBUILD-VERSION "0.1.0")
+(define RIBUILD-VERSION "1")
 
 (define (validate-ribuild-version config)
   (let ((version (car (getv 'ribuild-version config))))

@@ -1,6 +1,6 @@
 (define-library  
   ; don't change the ribuild-version yourself, automatically set by ribuild
-  (ribuild-version "0.1.0")
+  (ribuild-version "${ribuild-version}")
 
   (name "${pkg-name}")
   (description "Add your description here !")

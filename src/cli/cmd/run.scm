@@ -26,9 +26,7 @@
          (_ (if (not target-exe) (error "Error: cannot run, exe target not found") '()))
          (target-exe-path 
            (string-append (car (getv 'output-dir config '("."))) "/" (car (getv 'exe (cdr target-exe))) target-exe-suffix)))
-    (for-each 
-      (lambda (target-config) (build-target target-config config cmd-args)) 
-      (map cdr targets))
+    (build-targets config cmd-args)
     (let* ((exe-args (if (null? args) '() (member "--" args)))
            (exe-args-str (if (pair? exe-args) (string-concatenate (cdr exe-args) " ") "")))
       (display (shell-cmd target-exe-path exe-args-str)))))
@@ -42,6 +40,8 @@
         (cond
           ((member arg (list "-q" "--quiet")) 
            (loop (cons (list "quiet" #t) cmd-args) (cdr rest)))
+          ((member arg (list "-k" "--keep"))
+           (loop (cons (list "keep" #t) cmd-args) (cdr rest)))
           ((member arg (list "-t" "--target"))
            (loop (cons (list "target" (cadr rest)) cmd-args) (cddr rest)))
           ((member arg (list "-x" "--exe"))
@@ -53,4 +53,5 @@
           ((member arg (list "--target-exe-suffix"))
            (loop (cons (list "target-exe-suffix" (cadr rest)) cmd-args) (cddr rest)))
           (else 
-            (display (string-append "Ignoring unknown option '" arg "'"))))))))
+            (display (string-append "Ignoring unknown option '" arg "'\n"))
+            (loop cmd-args (cdr rest))))))))

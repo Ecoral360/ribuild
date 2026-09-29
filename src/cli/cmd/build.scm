@@ -1,16 +1,7 @@
 (define (cmd-build args)
-  (let* ((config (load-pkg-config))
-         (targets (getv 'targets config))
-         (cmd-args args))
-    (for-each 
-      (lambda (target-config) (build-target target-config config cmd-args)) 
-    (map cdr targets))))
+  (build-targets (load-pkg-config) (cmd-run-process-args args)))
 
 (define (cmd-sbuild args)
   (let* ((script-file (cadr args))
-         (config (load-script-config script-file))
-         (targets (getv 'targets config))
-         (cmd-args (cddr args)))
-    (for-each 
-      (lambda (target-config) (build-target target-config config cmd-args)) 
-    (map cdr targets))))
+         (config (load-script-config script-file)))
+    (build-targets config (cmd-run-process-args (cddr args)))))
