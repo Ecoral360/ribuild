@@ -10,8 +10,13 @@
   (entry main) ; specify the entry point of the program
   (output-dir "build") ; specify the dir where to put the output of targets
 
-  ;; libraries have the form accepted by the %%include-once ribbit directive:
-  ;; (ribbit "std-lib") OR "path/to/file.scm"
+  (dependency-dir "lib")
+  (dependencies
+    ;; (srfi-180 (github "Ecoral360/ribbit-srfi-180")) ;; example
+    )
+
+  ;; libraries have those form accepted:
+  ;; (ribbit "std-lib"), "path/to/file.scm", "directory/**", dependency-name
   (includes
     (ribbit "r4rs")
     "src/**")

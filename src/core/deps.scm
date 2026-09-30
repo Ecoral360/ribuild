@@ -31,12 +31,20 @@
   (and (string? lib)
        (string=? (strip-dot-slash lib) (strip-dot-slash path))))
 
+;; keeps the first occurrence of each element
+(define (remove-duplicates lst)
+  (let loop ((rest lst) (result '()))
+    (cond
+      ((null? rest) (reverse result))
+      ((member (car rest) result) (loop (cdr rest) result))
+      (else (loop (cdr rest) (cons (car rest) result))))))
+
 (define (write-includes includes port (indent ""))
   (for-each (lambda (lib)
               (display indent port)
               (write (list '%%include-once lib) port)
               (newline port))
-            (apply append (map expand-include includes))))
+            (remove-duplicates (apply append (map expand-include includes)))))
 
 ;; `targets-includes` is a list of (target-name . includes), those includes
 ;; are only used when compiling for that target.
@@ -67,16 +75,50 @@
 ;; generated in the current directory, so that the includes resolve like in a package
 (define script-build-file "__ribuild_script__.scm")
 
+;; the includes of the dependency `name` (a symbol), found in `deps-dir`, with
+;; their paths made relative to the current directory
+(define (dependency-includes name deps-dir seen)
+  (let* ((dir (string-append deps-dir "/" (symbol->string name)))
+         (pkg (string-append dir "/package.scm")))
+    (cond
+      ;; already included, avoids infinite loops with circular dependencies
+      ((member dir seen) '())
+      ((not (file-exists? pkg))
+       (error (string-append "*** Dependency `" (symbol->string name) "` not found in "
+                             dir ", run `rib install` to install it")))
+      (else
+        (let ((config (process-config (call-with-input-file pkg read))))
+          (resolve-includes
+            (map (lambda (lib)
+                   (if (string? lib)
+                     (string-append dir "/" (strip-dot-slash lib))
+                     lib))
+                 (getv 'includes config '()))
+            (string-append dir "/" (car (getv 'dependency-dir config '("lib"))))
+            (cons dir seen)))))))
+
+;; replaces the dependency names (symbols) by the includes of those dependencies
+(define (resolve-includes includes deps-dir (seen '()))
+  (apply append
+         (map (lambda (lib)
+                (if (symbol? lib)
+                  (dependency-includes lib deps-dir seen)
+                  (list lib)))
+              includes)))
+
 ;; writes the file compiled for every target, and returns its path
 (define (write-entry-file config targets)
   (let* ((entry (car (getv 'entry config)))
          (path (if (symbol? entry)
                  (string-append (symbol->string entry) ".scm")
                  script-build-file))
+         (deps-dir (car (getv 'dependency-dir config '("lib"))))
          (targets-includes
            (filter (lambda (target-includes) (pair? (cdr target-includes)))
                    (map (lambda (target-config)
-                          (cons (car target-config) (getv 'includes (cdr target-config) '())))
+                          (cons (car target-config)
+                                (resolve-includes (getv 'includes (cdr target-config) '()) deps-dir)))
                         targets))))
-    (includes-to-string (getv 'includes config '()) path entry targets-includes)
+    (includes-to-string (resolve-includes (getv 'includes config '()) deps-dir)
+                        path entry targets-includes)
     path))

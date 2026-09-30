@@ -18,6 +18,7 @@ Scheme scripts that carry their own build configuration.
 - [Quick start](#quick-start)
 - [Commands](#commands)
 - [The `package.scm` file](#the-packagescm-file)
+- [Dependencies](#dependencies)
 - [Includes and glob patterns](#includes-and-glob-patterns)
 - [How a build works](#how-a-build-works)
 - [Scripts](#scripts)
@@ -91,6 +92,7 @@ rib <CMD> [OPTION]...
 | Command                    | Description                                                       |
 | -------------------------- | ----------------------------------------------------------------- |
 | `rib init <NAME>`          | Creates the `<NAME>/` package from the default template           |
+| `rib i`, `rib install`     | Installs the dependencies (see [Dependencies](#dependencies))     |
 | `rib b`, `rib build`       | Builds every target of the package                                |
 | `rib r`, `rib run`         | Builds every target, then runs the first target that has an `exe` |
 | `rib test`                 | Like `run`, with the test features enabled (see [Testing](#testing)) |
@@ -171,6 +173,8 @@ A package is described by a single `define-package` form:
 | `authors`         | no       | List of author names |
 | `entry`           | yes      | **Symbol** naming the procedure called to start the program (e.g. `main`) |
 | `output-dir`      | no       | Directory where the targets are written (default: `.`) |
+| `dependency-dir`  | no       | Directory where `rib install` puts the dependencies (default: `lib`) |
+| `dependencies`    | no       | Dependencies of the package, see [Dependencies](#dependencies) |
 | `includes`        | yes      | Libraries and source files, see [Includes](#includes-and-glob-patterns) |
 | `features`        | no       | Ribbit features, `+name` to enable, `-name` to disable |
 | `targets`         | yes      | One `(target "<host>" ...)` form per host to compile for |
@@ -187,6 +191,25 @@ The target name is the Ribbit host passed to `rsc -t` (`js`, `py`, `c`, ...).
 | `(includes ...)`     | Includes only used for this target, after the global ones (globs are supported) |
 | `(features ...)`     | Features only used for this target. They override the global features with the same name (e.g. a global `+prim-no-arity` and a target `-prim-no-arity` gives `-prim-no-arity`) |
 
+## Dependencies
+
+Each entry of `dependencies` has the form `(<name> <source>)`:
+
+```scheme
+(dependency-dir "lib")
+(dependencies
+  (srfi-180 (github "Ecoral360/ribbit-srfi-180")))
+```
+
+| Source                  | Description |
+| ----------------------- | ----------- |
+| `(github "owner/repo")` | Clones `https://github.com/owner/repo.git` |
+| `(git "<url>")`         | Clones any git repository |
+
+`rib install` clones each dependency in `<dependency-dir>/<name>` (above:
+`lib/srfi-180`). A dependency whose directory already exists is skipped, so
+delete its directory to install it again.
+
 ## Includes and glob patterns
 
 Each entry of `includes` is one of:
@@ -196,6 +219,7 @@ Each entry of `includes` is one of:
 - `"path/to/file.scm"`: a source file, relative to the package root
 - `"dir/**"`: **every `.scm` file below `dir`**, subdirectories included
 - `"**"`: every `.scm` file of the package
+- `<name>` (a symbol): the dependency `<name>`, see below
 
 Files matched by a glob are included in alphabetical order. The glob must be
 at the end of the path (`src/**/foo.scm` is not supported).
@@ -206,6 +230,27 @@ at the end of the path (`src/**/foo.scm` is not supported).
   (ribbit "r4rs/sys")
   "src/**")
 ```
+
+### Including a dependency
+
+A symbol in `includes` (or in a target's `includes`) includes an installed
+dependency: Ribuild reads `<dependency-dir>/<name>/package.scm` and includes
+everything that package includes, with its paths made relative to its
+directory. The dependencies of the dependency are resolved the same way, in
+its own `dependency-dir`.
+
+```scheme
+(dependencies
+  (srfi-180 (github "Ecoral360/ribbit-srfi-180")))
+
+(includes
+  (ribbit "r4rs")
+  srfi-180     ; includes lib/srfi-180/src/**, and the rest of its includes
+  "src/**")
+```
+
+If the dependency is not installed, the build stops and asks you to run
+`rib install`. An include that appears more than once is only included once.
 
 ## How a build works
 

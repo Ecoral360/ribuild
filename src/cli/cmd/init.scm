@@ -16,11 +16,18 @@
           (string-append package-name "/package.scm")
           (lambda (output-port)
             (display processed-template output-port)))
-        (mkdir (string-append package-name "/src") (string-append package-name "/build"))
+        (mkdir (string-append package-name "/src") 
+               (string-append package-name "/build")
+               (string-append package-name "/lib"))
         (call-with-output-file
           (string-append package-name "/src/main.scm")
           (lambda (output-port)
-            (write '(define (main) (display "Hello from Ribuild!\n")) output-port)))))))
+            (display "(define (main)\n  (display \"Hello from Ribuild!\\n\"))" output-port)))
+
+        (call-with-output-file
+          (string-append package-name "/.gitignore")
+          (lambda (output-port)
+            (display "build/" output-port)))))))
 
 (define (cmd-sinit args)
   (let* ((script-file (if (null? (cdr args))

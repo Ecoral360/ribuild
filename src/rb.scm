@@ -7,15 +7,19 @@ SYNOPSIS
 COMMANDS
 PROJECT COMMANDS
 `init` <PACKAGE-NAME>
-Creates the <PACKAGE-NAME> directory with a package.scm, a src/main.scm
-and a build directory.
+Creates the <PACKAGE-NAME> directory with a package.scm, a src/main.scm,
+a build and a lib directory.
+
+`i`, `install`
+Installs the `dependencies` of the project in its `dependency-dir`
+(`lib` if not set). Already installed dependencies are skipped.
 
 `b`, `build` [OPTION]...
-Builds every target of the project.
+Builds every target of the project (or only the one given with -t).
 
 `r`, `run` [OPTION]... [-- <ARGS>...]
-Builds every target of the project, then runs the first target that has
-an `exe` (or the one given with -t).
+Builds and runs the first target that has an `exe` (or the one given
+with -t).
 
 `test` [OPTION]... [-- <ARGS>...]
 Like `run`, with the `test` and `ribuild/test` features enabled. Outputs
@@ -95,6 +99,10 @@ EXAMPLES
        (br-call script-cmd? cmd-sbuild cmd-build (cdr args)))
       ((member (car args) '("r" "run"))
        (br-call script-cmd? cmd-srun cmd-run (cdr args)))
+
+      ((member (car args) '("i" "install"))
+       (cmd-install (cdr args)))
+
       ((string=? (car args) "init")
        (br-call script-cmd? cmd-sinit cmd-init (cdr args)))
 

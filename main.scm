@@ -2,9 +2,9 @@
 
 (%%include-once (ribbit "r4rs"))
 (%%include-once (ribbit "r4rs/sys"))
-(%%include-once "src/cli/cmd/add.scm")
 (%%include-once "src/cli/cmd/build.scm")
 (%%include-once "src/cli/cmd/init.scm")
+(%%include-once "src/cli/cmd/install.scm")
 (%%include-once "src/cli/cmd/run.scm")
 (%%include-once "src/cli/cmd/test.scm")
 (%%include-once "src/cli/utils.scm")
