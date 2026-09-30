@@ -1,7 +1,15 @@
 (define (cmd-build args)
-  (build-targets (load-pkg-config) (cmd-run-process-args args)))
+  (_cmd-build args (load-pkg-config)))
 
 (define (cmd-sbuild args)
   (let* ((script-file (cadr args))
+         (args (cddr args))
          (config (load-script-config script-file)))
-    (build-targets config (cmd-run-process-args (cddr args)))))
+    (_cmd-build args config)))
+
+(define (_cmd-build args config)
+  (let* ((targets (getv 'targets config))
+         (cmd-args (cmd-run-process-args args))
+         (target-name (let ((t (assoc "target" cmd-args)))
+                        (and t (cadr t)))))
+    (build-targets config cmd-args target-name)))

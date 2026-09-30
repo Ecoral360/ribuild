@@ -26,7 +26,7 @@
          (_ (if (not target-exe) (error "Error: cannot run, exe target not found") '()))
          (target-exe-path 
            (string-append (car (getv 'output-dir config '("."))) "/" (car (getv 'exe (cdr target-exe))) target-exe-suffix)))
-    (build-targets config cmd-args)
+    (build-targets config cmd-args (or target-name (cadar targets)))
     (let* ((exe-args (if (null? args) '() (member "--" args)))
            (exe-args-str (if (pair? exe-args) (string-concatenate (cdr exe-args) " ") "")))
       (display (shell-cmd target-exe-path exe-args-str)))))

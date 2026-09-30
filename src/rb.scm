@@ -109,6 +109,7 @@ EXAMPLES
       ;;  (cmd-sinit (cdr args)))
 
       ((member (car args) '("-v" "--version"))
+       (display "Ribuild v")
        (display RIBUILD-VERSION)
        (newline))
 

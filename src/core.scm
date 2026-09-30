@@ -57,10 +57,14 @@
         (process-target-output target-name result (assoc "quiet" cmd-args))))))
 
 ;; builds every target, the generated entry file is removed unless --keep is passed
-(define (build-targets config cmd-args)
+(define (build-targets config cmd-args (only-target #f))
   (let* ((targets (map cdr (getv 'targets config)))
          (code (write-entry-file config targets)))
-    (for-each (lambda (target-config) (build-target target-config config cmd-args code))
+    (for-each (lambda (target-config) 
+                (if only-target 
+                  (and (string=? only-target (car target-config)) 
+                       (build-target target-config config cmd-args code))
+                  (build-target target-config config cmd-args code)))
               targets)
     (if (not (assoc "keep" cmd-args))
       (shell-cmd (string-append "rm -f " code)))))
